@@ -70,10 +70,18 @@ jsonb_extend(PG_FUNCTION_ARGS)
     get_typlenbyvalalign(ARR_ELEMTYPE(arr), &typlen, &typbyval, &typalign);
     first = (Jsonb *) ARR_DATA_PTR(arr);
   } else
-    first = PG_GETARG_JSONB(0);
+	#ifdef PG_GETARG_JSONB_P
+		first = PG_GETARG_JSONB_P(0);
+	#else
+		first = PG_GETARG_JSONB(0);
+	#endif
 
   if (nargs == 1)
-    PG_RETURN_JSONB(first);
+	#ifdef PG_RETURN_JSONB_P
+		PG_RETURN_JSONB_P(first);
+	#else
+		PG_RETURN_JSONB(first);
+	#endif
 
   /* Scalar as first object may be useful only if we want to prepend an array */
   if (JB_ROOT_IS_SCALAR(first))
@@ -91,7 +99,12 @@ jsonb_extend(PG_FUNCTION_ARGS)
         current = (Jsonb *)att_addlength_pointer((char *) current, typlen, (char *) current);
         current = (Jsonb *)att_align_nominal((char *)current, typalign);
       } else {
-        current = PG_GETARG_JSONB(i);
+		#ifdef PG_GETARG_JSONB_P
+			current = PG_GETARG_JSONB_P(i);
+		#else
+			current = PG_GETARG_JSONB(i);
+		#endif
+        
       }
     }
 
@@ -105,7 +118,11 @@ jsonb_extend(PG_FUNCTION_ARGS)
 
   type = JB_ROOT_IS_OBJECT(first) ? WJB_END_OBJECT : WJB_END_ARRAY;
   res = pushJsonbValue1(&state, type, NULL);
-  PG_RETURN_JSONB(JsonbValueToJsonb(res));
+  #ifdef PG_RETURN_JSONB_P
+	PG_RETURN_JSONB_P(JsonbValueToJsonb(res));
+  #else
+	PG_RETURN_JSONB(JsonbValueToJsonb(res));
+  #endif
 }
 
 JsonbParseState*
@@ -197,10 +214,18 @@ jsonb_deep_extend(PG_FUNCTION_ARGS)
     get_typlenbyvalalign(ARR_ELEMTYPE(arr), &typlen, &typbyval, &typalign);
     first = (Jsonb *) ARR_DATA_PTR(arr);
   } else
-    first = PG_GETARG_JSONB(1);
+	#ifdef PG_GETARG_JSONB_P
+		first = PG_GETARG_JSONB_P(1);
+	#else
+		first = PG_GETARG_JSONB(1);
+	#endif
 
   if (nargs == 1)
-    PG_RETURN_JSONB(first);
+	#ifdef PG_RETURN_JSONB_P
+		PG_RETURN_JSONB_P(first);
+	#else
+		PG_RETURN_JSONB(first);
+	#endif
 
   if (!JB_ROOT_IS_OBJECT(first))
     elog(ERROR, "jsonb_deep_extend: implemented only for objects");
@@ -214,7 +239,11 @@ jsonb_deep_extend(PG_FUNCTION_ARGS)
         object = (Jsonb *)att_addlength_pointer((char *) object, typlen, (char *) object);
         object = (Jsonb *)att_align_nominal((char *)object, typalign);
       } else {
-        object = PG_GETARG_JSONB(i + 1);
+		#ifdef PG_GETARG_JSONB_P
+			object = PG_GETARG_JSONB_P(i + 1);
+		#else
+			object = PG_GETARG_JSONB(i + 1);
+		#endif
       }
     }
     it[i] = JsonbIteratorInit(&(object->root));
@@ -282,7 +311,11 @@ jsonb_deep_extend(PG_FUNCTION_ARGS)
     pfree(key.val.string.val);
   }
 
-  PG_RETURN_JSONB(JsonbValueToJsonb(res));
+  #ifdef PG_RETURN_JSONB_P
+	PG_RETURN_JSONB_P(JsonbValueToJsonb(res));
+  #else
+	PG_RETURN_JSONB(JsonbValueToJsonb(res));
+  #endif
 }
 
 int
